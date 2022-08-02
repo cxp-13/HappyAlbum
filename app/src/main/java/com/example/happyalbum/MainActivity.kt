@@ -1,34 +1,30 @@
 package com.example.happyalbum
 
 import android.Manifest
-import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import com.example.happyalbum.adapter.ImageAdapter
 import com.example.happyalbum.databinding.ActivityMainBinding
-import com.example.happyalbum.utils.Image
-import com.example.happyalbum.utils.TAG
+import com.example.happyalbum.fragment.NoticeDialogFragment
+import com.example.happyalbum.utils.ImageUtils
+import com.example.happyalbum.viewmodel.ImageViewModel
 
-import java.io.File
-
-
-class MainActivity : AppCompatActivity() {
+const val TAG2 = "MainActivity"
+class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListener {
 
     private lateinit var binding: ActivityMainBinding
-
-
+    private val imageViewModel: ImageViewModel by viewModels()
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Log.i(TAG2, "onCreate: ")
         binding = ActivityMainBinding.inflate(this.layoutInflater)
         setContentView(binding.root)
 
@@ -60,18 +56,65 @@ class MainActivity : AppCompatActivity() {
             this.applicationContext,
             Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
-        Log.d(TAG, "getImageFromDesc: \n")
-        Log.d(TAG, "readPermission: $permission_readStorage\n")
-        Log.d(TAG, "cameraPermission: $permission_camera\n")
+        Log.d(TAG2, "getImageFromDesc: \n")
+        Log.d(TAG2, "readPermission: $permission_readStorage\n")
+        Log.d(TAG2, "cameraPermission: $permission_camera\n")
 
-        val image = Image(contentResolver, this)
+        val imageUtils = ImageUtils(contentResolver, this)
 
-        val imageAdapter = ImageAdapter(image)
+        val imageAdapter = ImageAdapter(imageUtils, imageViewModel) { showNoticeDialog() }
 
         binding.recyclerView1.adapter = imageAdapter
         binding.recyclerView2.adapter = imageAdapter
         binding.recyclerView3.adapter = imageAdapter
+    }
 
+    override fun onStart() {
+        super.onStart()
+        Log.i(TAG2, "onStart: ")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.i(TAG2, "onResume: ")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.i(TAG2, "onStop: ")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.i(TAG2, "onPause: ")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(TAG2, "onDestroy: ")
+    }
+
+    fun showNoticeDialog() {
+        // Create an instance of the dialog fragment and show it
+        var msg: String = "test"
+        imageViewModel.image?.observe(this) {
+            msg = it.location
+        }
+        val dialog = NoticeDialogFragment(msg)
+        dialog.show(supportFragmentManager, "NoticeDialogFragment")
+    }
+
+    override fun onDialogPositiveClick() {
+        imageViewModel.image?.observe(this) {
+            val intent = Intent(this, EditImageActivity::class.java)
+            val bundle = Bundle()
+            bundle.putSerializable("imageEntity", it)
+            intent.putExtra("bd",bundle)
+            startActivity(intent)
+        }
+    }
+
+    override fun onDialogNegativeClick() {
 
     }
 

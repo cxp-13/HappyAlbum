@@ -16,16 +16,15 @@ import com.example.happyalbum.MainActivity
 import com.example.happyalbum.entity.ImageEntity
 import java.io.File
 
-@SuppressLint("Range")
-const val TAG = "ImgActivity"
 
+const val TAG = "ImgActivity"
 @SuppressLint("Range")
-class Image(contentResolver: ContentResolver, var activity: MainActivity) {
+class ImageUtils(contentResolver: ContentResolver, var activity: MainActivity) {
     private val cursor: Cursor? = contentResolver.query(
 //       要先获取权限，不然MediaStore.Images.Media.EXTERNAL_CONTENT_URI是null
         MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
         null, MediaStore.Images.Media.MIME_TYPE + "=? or "
-                + MediaStore.Images.Media.MIME_TYPE + "=?", arrayOf("image/jpeg", "image/png"), MediaStore.Images.Media.DATE_MODIFIED
+                + MediaStore.Images.Media.MIME_TYPE + "=?", arrayOf("image/jpeg", "image/png"), MediaStore.Images.Media.DATE_MODIFIED + " DESC"
     )
 
     var imageList = ArrayList<ImageEntity>()
@@ -37,26 +36,28 @@ class Image(contentResolver: ContentResolver, var activity: MainActivity) {
                 val name: String =
                     cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME))
                 Log.d(TAG, "initImages: imageName: $name")
-
                 //获取图片的路径
                 val data: ByteArray =
                     cursor.getBlob(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
                 val location = String(data, 0, data.size - 1)
                 Log.d(TAG, "initImages: imageLocation: $location")
+                val date = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED))
+                Log.d(TAG, "initImages: imageDate: $date")
                 //根据路径获取图片 bm属性暂时无效
-                val bm: Bitmap? = getImgFromDesc(location)
+//                val bm: Bitmap? = getImgFromDesc(location)
                 //获取图片的详细信息
 //                val desc: String =
 //                    cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DESCRIPTION))
 //                Log.d(TAG, "initImages: ImageDesc: $desc")
-                val image = ImageEntity(bm, name, location)
+
+                val image = ImageEntity(name, location)
                 imageList.add(image)
             }
         }
         Log.d(TAG, "initImage: " + "imageList.size: " + imageList.size)
     }
-    //根据路径获取图片
-    private fun getImgFromDesc(path: String): Bitmap? {
+    //根据路径获取图片(弃用原因：通过imageView的src属性传入location图片路径)
+    fun getImgFromDesc(path: String): Bitmap? {
         var bm: Bitmap? = null
         val file = File(path)
         if (file.exists()) {

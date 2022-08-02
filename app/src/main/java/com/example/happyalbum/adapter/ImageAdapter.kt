@@ -6,12 +6,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.happyalbum.R
 import com.example.happyalbum.databinding.ItemBinding
-import com.example.happyalbum.entity.ImageEntity
-import com.example.happyalbum.utils.Image
+import com.example.happyalbum.utils.ImageUtils
+import com.example.happyalbum.viewmodel.ImageViewModel
 
-class ImageAdapter(var image: Image) : RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
+class ImageAdapter(
+    var imageUtils: ImageUtils,
+    var imageViewModel: ImageViewModel,
+    var showNoticeDialog: () -> Unit
+) : RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
 
-    private var imageList = image.imageList
+    private var imageList = imageUtils.imageList
 
 
     inner class ImageHolder(var dataBinding: ItemBinding) :
@@ -30,12 +34,15 @@ class ImageAdapter(var image: Image) : RecyclerView.Adapter<ImageAdapter.ImageHo
     }
 
     override fun onBindViewHolder(holder: ImageHolder, position: Int) {
-
-        holder.dataBinding.img = imageList[position]
+        val image = imageList[position]
+        holder.dataBinding.img = image
 //        holder.dataBinding.imageView.setImageBitmap(imageList[position].bitmap)
+//        val imageView = holder.dataBinding.imageView
 
-
-
+        holder.dataBinding.imageView.setOnClickListener {
+            imageViewModel.image?.value = image
+            showNoticeDialog()
+        }
     }
 
     override fun getItemCount(): Int {
