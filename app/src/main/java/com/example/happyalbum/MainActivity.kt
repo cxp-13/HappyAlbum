@@ -15,20 +15,38 @@ import com.example.happyalbum.databinding.ActivityMainBinding
 import com.example.happyalbum.fragment.NoticeDialogFragment
 import com.example.happyalbum.utils.ImageUtils
 import com.example.happyalbum.viewmodel.ImageViewModel
+/**
+ * @Auther:cxp
+ * @Date: 2022/8/3 17:14
+ * @Description:图片展示页
+*/
 
 const val TAG2 = "MainActivity"
+
 class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListener {
 
     private lateinit var binding: ActivityMainBinding
     private val imageViewModel: ImageViewModel by viewModels()
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG2, "onCreate: ")
         binding = ActivityMainBinding.inflate(this.layoutInflater)
         setContentView(binding.root)
-
-        val permissions = arrayOf<String>(
+//检查权限
+        permissionChecking()
+//初始化图片工具类
+        val imageUtils = ImageUtils(contentResolver, applicationContext)
+//初始化图片适配器
+        val imageAdapter = ImageAdapter(imageUtils, imageViewModel) { showNoticeDialog() }
+//给三个recyclerView的适配器赋值
+        binding.recyclerView1.adapter = imageAdapter
+        binding.recyclerView2.adapter = imageAdapter
+        binding.recyclerView3.adapter = imageAdapter
+    }
+//检查权限
+    private fun permissionChecking() {
+        val permissions = arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA
@@ -59,14 +77,6 @@ class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListen
         Log.d(TAG2, "getImageFromDesc: \n")
         Log.d(TAG2, "readPermission: $permission_readStorage\n")
         Log.d(TAG2, "cameraPermission: $permission_camera\n")
-
-        val imageUtils = ImageUtils(contentResolver, this)
-
-        val imageAdapter = ImageAdapter(imageUtils, imageViewModel) { showNoticeDialog() }
-
-        binding.recyclerView1.adapter = imageAdapter
-        binding.recyclerView2.adapter = imageAdapter
-        binding.recyclerView3.adapter = imageAdapter
     }
 
     override fun onStart() {
@@ -94,9 +104,10 @@ class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListen
         Log.i(TAG2, "onDestroy: ")
     }
 
-    fun showNoticeDialog() {
-        // Create an instance of the dialog fragment and show it
-        var msg: String = "test"
+    //创建对话框片段的实例并显示它
+    private fun showNoticeDialog() {
+        var msg = "test"
+//        获取图片的路径并显示在对话框的标题上
         imageViewModel.image?.observe(this) {
             msg = it.location
         }
@@ -104,19 +115,23 @@ class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListen
         dialog.show(supportFragmentManager, "NoticeDialogFragment")
     }
 
+    //当点击确认
     override fun onDialogPositiveClick() {
+/*
+bug：直接无视弹出框跳转到编辑页
+解决：把观察者的范围改成bundle的赋值
+* */
+        val intent = Intent(this, EditImageActivity::class.java)
+        val bundle = Bundle()
         imageViewModel.image?.observe(this) {
-            val intent = Intent(this, EditImageActivity::class.java)
-            val bundle = Bundle()
             bundle.putSerializable("imageEntity", it)
-            intent.putExtra("bd",bundle)
-            startActivity(intent)
         }
+        intent.putExtra("bd", bundle)
+        startActivity(intent)
     }
 
+    //当点击取消
     override fun onDialogNegativeClick() {
 
     }
-
-
 }

@@ -8,7 +8,11 @@ import com.example.happyalbum.R
 import com.example.happyalbum.databinding.ItemBinding
 import com.example.happyalbum.utils.ImageUtils
 import com.example.happyalbum.viewmodel.ImageViewModel
-
+/**
+ * @Auther:cxp
+ * @Date: 2022/8/3 16:05
+ * @Description:首页图片RecyclerView适配器
+*/
 class ImageAdapter(
     var imageUtils: ImageUtils,
     var imageViewModel: ImageViewModel,
@@ -17,10 +21,8 @@ class ImageAdapter(
 
     private var imageList = imageUtils.imageList
 
-
     inner class ImageHolder(var dataBinding: ItemBinding) :
         RecyclerView.ViewHolder(dataBinding.root)
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageHolder {
 
@@ -38,7 +40,7 @@ class ImageAdapter(
         holder.dataBinding.img = image
 //        holder.dataBinding.imageView.setImageBitmap(imageList[position].bitmap)
 //        val imageView = holder.dataBinding.imageView
-
+//每个展示的图片都有点击事件
         holder.dataBinding.imageView.setOnClickListener {
             imageViewModel.image?.value = image
             showNoticeDialog()

@@ -1,99 +1,120 @@
 package com.example.happyalbum
 
 import android.annotation.SuppressLint
-import android.graphics.*
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
-import android.view.MotionEvent
-import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.happyalbum.canvas.MyView
 import com.example.happyalbum.databinding.ActivityEditImageBinding
+import com.example.happyalbum.diyView.HandWrite
 import com.example.happyalbum.entity.ImageEntity
+/**
+ * @Auther:cxp
+ * @Date: 2022/8/3 16:40
+ * @Description:编辑图片页
+*/
 
 const val TAG = "EditImageActivity"
 
 class EditImageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditImageBinding
-
+    private lateinit var handWrite: HandWrite
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "onCreate: ")
         binding = ActivityEditImageBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
+//获取从图片展示页传过来的intent
+        val intent = intent
+        val bundle: Bundle? = intent.getBundleExtra("bd")
+        val imageEntity = bundle?.getSerializable("imageEntity") as ImageEntity?
+//初始化绘画类
+        handWrite = binding.hw
+        // 从资源中获取原始图像
+        handWrite.origBit =
+            BitmapFactory.decodeFile(imageEntity?.location).copy(Bitmap.Config.ARGB_8888, true)
+        //当一个view对象创建时，android并不知道其大小，所以getWidth()和getHeight()返回的结果是0
+        // 建立原始图像的位图 width:1440 height:2112 先debug获取View的长宽
+        handWrite.new_1Bit = Bitmap.createScaledBitmap(handWrite.origBit!!, 1440, 2112, false)
     }
-
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onStart() {
         super.onStart()
         Log.i(TAG, "onStart: ")
-
-        val intent = intent
-        val bundle: Bundle? = intent.getBundleExtra("bd")
-        val imageEntity = bundle?.getSerializable("imageEntity") as ImageEntity?
-        binding.img = imageEntity
-
-        var paint = Paint()
-        paint.strokeWidth = 10F
-        paint.color = Color.RED
-        val imageView = binding.imageView
-
-//当一个view对象创建时，android并不知道其大小，所以getWidth()和getHeight()返回的结果是0
-
-
-        var startX = 0f
-        var startY = 0f
-        var baseBitmap:Bitmap ?= null
-
-        var canvas: Canvas ?= null
-
-        imageView.setOnTouchListener { v, event ->
-
-            when (event.action) {
-                // 用户按下动作
-                MotionEvent.ACTION_DOWN -> {
-                    // 第一次绘图初始化内存图片，指定背景为白色
-                    if(baseBitmap == null){
-                        baseBitmap = Bitmap.createBitmap(
-                            imageView.width,
-                            imageView.height,
-                            Bitmap.Config.ARGB_8888
-                        )
-                        canvas = Canvas(baseBitmap)
-
-                    }
-                    // 记录开始触摸的点的坐标
-
-                    startX = event.x
-                    startY = event.y
-                }
-                // 用户手指在屏幕上移动的动作
-                MotionEvent.ACTION_MOVE -> {
-
-                    // 记录移动位置的点的坐标
-                    var stopX = event.x
-                    var stopY = event.y
-                    //根据两点坐标，绘制连线
-                    canvas?.drawLine(startX, startY, stopX, stopY, paint);
-
-                    // 更新开始点的位置
-                    startX = event.x
-                    startY = event.y
-
-                    // 把图片展示到ImageView中
-                    binding.imageView.setImageBitmap(baseBitmap)
-
-                }
-                MotionEvent.ACTION_UP -> {}
-                else -> {}
-            }
-            true
+//        保存图片
+        var saveBt = binding.saveBt
+        saveBt.setOnClickListener {
+            handWrite.save()
         }
+//        编辑图片
+        var editBt = binding.editBt
+        editBt.setOnClickListener {
+            handWrite.start()
+        }
+//        清楚涂鸦
+        var clearBt = binding.clearBt
+        clearBt.setOnClickListener {
+            handWrite.clear()
+        }
+//        返回展示图片页
+        var backBt = binding.backBt
+        backBt.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+//        var paint = Paint()
+//        paint.strokeWidth = 10F
+//        paint.color = Color.RED
+//        val imageView = binding.imageView
+////当一个view对象创建时，android并不知道其大小，所以getWidth()和getHeight()返回的结果是0
+//        var startX = 0f
+//        var startY = 0f
+//        var canvas: Canvas?
+//先debug获取imageView的长宽
+//        baseBitmap = Bitmap.createBitmap(
+//            1440,
+//            2112,
+//            Bitmap.Config.ARGB_8888
+//        )
+//        var baseBitmap =
+//            BitmapFactory.decodeFile(imageEntity?.location).copy(Bitmap.Config.ARGB_8888, true)
+//        var newBitmap = Bitmap.createScaledBitmap(baseBitmap, 1440, 2112, false)
+//
+//        canvas = Canvas(newBitmap)
+//        binding.imageView.setImageBitmap(newBitmap)
+//
+//        imageView.setOnTouchListener { v, event ->
+//            when (event.action) {
+//                // 用户按下动作
+//                MotionEvent.ACTION_DOWN -> {
+//                    // 记录开始触摸的点的坐标
+//                    startX = event.x
+//                    startY = event.y
+//                }
+//                // 用户手指在屏幕上移动的动作
+//                MotionEvent.ACTION_MOVE -> {
+//                    // 记录移动位置的点的坐标
+//                    var stopX = event.x
+//                    var stopY = event.y
+//                    //根据两点坐标，绘制连线
+//                    if (isPaint) {
+//                        canvas?.drawLine(startX, startY, stopX, stopY, paint)
+//                    }
+//                    // 更新开始点的位置
+//                    startX = event.x
+//                    startY = event.y
+//                    // 把图片展示到ImageView中
+//                    binding.imageView.setImageBitmap(newBitmap)
+//                }
+//                MotionEvent.ACTION_UP -> {}
+//                else -> {}
+//            }
+//            true
+//        }
     }
 
     override fun onResume() {
@@ -115,8 +136,6 @@ class EditImageActivity : AppCompatActivity() {
         super.onDestroy()
         Log.i(TAG, "onDestroy: ")
     }
-
-
 }
 
 
