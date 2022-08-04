@@ -11,7 +11,7 @@ import com.example.happyalbum.databinding.ActivityEditImageBinding
 import com.example.happyalbum.diyView.HandWrite
 import com.example.happyalbum.entity.ImageEntity
 /**
- * @Auther:cxp
+ * @Author:cxp
  * @Date: 2022/8/3 16:40
  * @Description:编辑图片页
 */

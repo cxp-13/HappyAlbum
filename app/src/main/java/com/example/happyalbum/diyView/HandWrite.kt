@@ -11,7 +11,7 @@ import android.view.View
 import com.example.happyalbum.utils.ImageUtils
 
 /**
- * @Auther:cxp
+ * @Author:cxp
  * @Date: 2022/8/3 16:07
  * @Description:绘画类
  */

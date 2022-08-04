@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.happyalbum.entity.ImageEntity
 /**
- * @Auther:cxp
+ * @Author:cxp
  * @Date: 2022/8/3 17:06
  * @Description:传递单个图片信息和路径
  * ImageAdapter被点击的图片 --> MainActivity 的点击确认的回调事件获取路径显示

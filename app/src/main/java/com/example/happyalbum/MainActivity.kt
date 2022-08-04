@@ -16,7 +16,7 @@ import com.example.happyalbum.fragment.NoticeDialogFragment
 import com.example.happyalbum.utils.ImageUtils
 import com.example.happyalbum.viewmodel.ImageViewModel
 /**
- * @Auther:cxp
+ * @Author:cxp
  * @Date: 2022/8/3 17:14
  * @Description:图片展示页
 */

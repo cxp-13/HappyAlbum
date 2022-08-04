@@ -15,7 +15,7 @@ import java.io.File
 import java.io.OutputStream
 
 /**
- * @Auther:cxp
+ * @Author:cxp
  * @Date: 2022/8/3 16:57
  * @Description:图片工具类
 */

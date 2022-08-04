@@ -7,7 +7,7 @@ import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 /**
- * @Auther:cxp
+ * @Author:cxp
  * @Date: 2022/8/3 16:44
  * @Description:点击图片后的对话框
 */

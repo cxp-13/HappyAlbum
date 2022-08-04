@@ -9,7 +9,7 @@ import com.example.happyalbum.databinding.ItemBinding
 import com.example.happyalbum.utils.ImageUtils
 import com.example.happyalbum.viewmodel.ImageViewModel
 /**
- * @Auther:cxp
+ * @Author:cxp
  * @Date: 2022/8/3 16:05
  * @Description:首页图片RecyclerView适配器
 */
