@@ -1,10 +1,14 @@
 package com.example.happyalbum
 
 import android.Manifest
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
@@ -13,13 +17,15 @@ import androidx.fragment.app.FragmentActivity
 import com.example.happyalbum.adapter.ImageAdapter
 import com.example.happyalbum.databinding.ActivityMainBinding
 import com.example.happyalbum.fragment.NoticeDialogFragment
+import com.example.happyalbum.service.MyIntentService
 import com.example.happyalbum.utils.ImageUtils
 import com.example.happyalbum.viewmodel.ImageViewModel
+
 /**
  * @Author:cxp
  * @Date: 2022/8/3 17:14
  * @Description:图片展示页
-*/
+ */
 
 const val TAG2 = "MainActivity"
 
@@ -27,6 +33,18 @@ class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListen
 
     private lateinit var binding: ActivityMainBinding
     private val imageViewModel: ImageViewModel by viewModels()
+//    private val connection = object : ServiceConnection{
+//        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+//            var binder = service as MyIntentService.MyBinder
+//            var entity = binder.getImage()
+//
+//
+//        }
+//
+//        override fun onServiceDisconnected(name: ComponentName?) {
+//            TODO("Not yet implemented")
+//        }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +62,8 @@ class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListen
         binding.recyclerView2.adapter = imageAdapter
         binding.recyclerView3.adapter = imageAdapter
     }
-//检查权限
+
+    //检查权限
     private fun permissionChecking() {
         val permissions = arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -121,13 +140,22 @@ class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListen
 bug：直接无视弹出框跳转到编辑页
 解决：把观察者的范围改成bundle的赋值
 * */
-        val intent = Intent(this, EditImageActivity::class.java)
+        var intent = Intent(this, EditImageActivity::class.java)
         val bundle = Bundle()
         imageViewModel.image?.observe(this) {
             bundle.putSerializable("imageEntity", it)
         }
         intent.putExtra("bd", bundle)
+
         startActivity(intent)
+
+//        intent = Intent(this, MyIntentService::class.java)
+//        val bundle = Bundle()
+//        imageViewModel.image?.observe(this) {
+//            bundle.putSerializable("imageEntity", it)
+//        }
+//        intent.putExtra("bd", bundle)
+//        bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
     //当点击取消

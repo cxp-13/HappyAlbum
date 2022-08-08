@@ -1,4 +1,4 @@
-package com.example.happyalbum.diyView
+package com.example.happyalbum.customize_view
 
 import android.content.Context
 import android.graphics.Bitmap

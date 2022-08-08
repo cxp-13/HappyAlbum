@@ -5,22 +5,29 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import com.example.happyalbum.customize_view.HandWrite
 import com.example.happyalbum.databinding.ActivityEditImageBinding
-import com.example.happyalbum.diyView.HandWrite
 import com.example.happyalbum.entity.ImageEntity
+
 /**
  * @Author:cxp
  * @Date: 2022/8/3 16:40
  * @Description:编辑图片页
-*/
+ */
 
 const val TAG = "EditImageActivity"
 
 class EditImageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditImageBinding
     private lateinit var handWrite: HandWrite
+    private lateinit var handle: Handler
+    var imageEntity:ImageEntity ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +37,8 @@ class EditImageActivity : AppCompatActivity() {
 //获取从图片展示页传过来的intent
         val intent = intent
         val bundle: Bundle? = intent.getBundleExtra("bd")
-        val imageEntity = bundle?.getSerializable("imageEntity") as ImageEntity?
+        imageEntity = bundle?.getSerializable("imageEntity") as ImageEntity?
+
 //初始化绘画类
         handWrite = binding.hw
         // 从资源中获取原始图像
@@ -39,6 +47,22 @@ class EditImageActivity : AppCompatActivity() {
         //当一个view对象创建时，android并不知道其大小，所以getWidth()和getHeight()返回的结果是0
         // 建立原始图像的位图 width:1440 height:2112 先debug获取View的长宽
         handWrite.new_1Bit = Bitmap.createScaledBitmap(handWrite.origBit!!, 1440, 2112, false)
+
+//定义handle处理图片的名称
+        /*对象表达式常用来作为匿名内部类的实现，与对象声明不同，匿名对象不是单例的，每次对象表达式被执行都会创建一个新的对象实例*/
+        handle = object : Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message) {
+                //        显示待涂鸦图片的名称
+                binding.showLocation.text = msg.obj.toString()
+            }
+        }
+
+        handle.postDelayed({
+//            将intent中的图像的名称传给handle
+            var message: Message = handle.obtainMessage()
+            message.obj = imageEntity?.name
+            handle.handleMessage(message)
+        }, 2000)
     }
 
     @SuppressLint("ClickableViewAccessibility")

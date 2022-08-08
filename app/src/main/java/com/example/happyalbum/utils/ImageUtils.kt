@@ -11,6 +11,8 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import com.example.happyalbum.entity.ImageEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.OutputStream
 
@@ -18,55 +20,58 @@ import java.io.OutputStream
  * @Author:cxp
  * @Date: 2022/8/3 16:57
  * @Description:图片工具类
-*/
+ */
 
 const val TAG = "ImgActivity"
+
 @SuppressLint("Range")
 class ImageUtils(var contentResolver: ContentResolver, var context: Context) {
-//    获取游标，时间降序
-    private val cursor: Cursor? = contentResolver.query(
-//       要先获取权限，不然MediaStore.Images.Media.EXTERNAL_CONTENT_URI是null
-        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-        null,
-        MediaStore.Images.Media.MIME_TYPE + "=? or "
-                + MediaStore.Images.Media.MIME_TYPE + "=?",
-        arrayOf("image/jpeg", "image/png"),
-        MediaStore.Images.Media.DATE_MODIFIED + " DESC"
-    )
-//存放图片列表
-    var imageList = ArrayList<ImageEntity>()
+    //    获取游标，时间降序
+    private var cursor: Cursor?? = null
 
     init {
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                //获取图片的名称
-                val name: String =
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME))
-                Log.d(TAG, "initImages: imageName: $name")
-                //获取图片的路径
-                val data: ByteArray =
-                    cursor.getBlob(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
-                val location = String(data, 0, data.size - 1)
-                Log.d(TAG, "initImages: imageLocation: $location")
-                val date =
-                    cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED))
-                Log.d(TAG, "initImages: imageDate: $date")
-                //根据路径获取图片 bm属性暂时无效
+        cursor = contentResolver.query(
+//       要先获取权限，不然MediaStore.Images.Media.EXTERNAL_CONTENT_URI是null
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                null,
+                MediaStore.Images.Media.MIME_TYPE + "=? or "
+                        + MediaStore.Images.Media.MIME_TYPE + "=?",
+                arrayOf("image/jpeg", "image/png"),
+                MediaStore.Images.Media.DATE_MODIFIED + " DESC"
+            )
+    }
+    //存放图片列表
+    fun getImages(): ArrayList<ImageEntity> {
+        var imageList = ArrayList<ImageEntity>()
+
+        while (cursor!!.moveToNext()) {
+            //获取图片的名称
+            val name: String =
+                cursor!!.getString(cursor!!.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME))
+            Log.d(TAG, "initImages: imageName: $name")
+            //获取图片的路径
+            val data: ByteArray =
+                cursor!!.getBlob(cursor!!.getColumnIndex(MediaStore.Images.Media.DATA))
+            val location = String(data, 0, data.size - 1)
+            Log.d(TAG, "initImages: imageLocation: $location")
+            val date =
+                cursor!!.getString(cursor!!.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED))
+            Log.d(TAG, "initImages: imageDate: $date")
+            //根据路径获取图片 bm属性暂时无效
 //                val bm: Bitmap? = getImgFromDesc(location)
-                //获取图片的详细信息
+            //获取图片的详细信息
 //                val desc: String =
 //                    cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DESCRIPTION))
 //                Log.d(TAG, "initImages: ImageDesc: $desc")
-
-                val image = ImageEntity(name, location)
-                imageList.add(image)
-            }
+            val image = ImageEntity(name, location)
+            imageList.add(image)
         }
         Log.d(TAG, "initImage: " + "imageList.size: " + imageList.size)
+        return imageList
     }
-
     //根据路径获取图片(弃用原因：通过imageView的src属性传入location图片路径)
 //    弃用原因2.0：通过ImageEntity的文件路径location就可以创建位图， 自定义view
+    @Deprecated(message = "通过ImageEntity的文件路径location就可以创建位图， 自定义view")
     fun getImgFromDesc(path: String): Bitmap? {
         var bm: Bitmap? = null
         val file = File(path)
@@ -78,7 +83,6 @@ class ImageUtils(var contentResolver: ContentResolver, var context: Context) {
         }
         return bm
     }
-
     //保存图片
     fun save(bitmap: Bitmap) {
         //创建ContentValues对象，准备插入数据
