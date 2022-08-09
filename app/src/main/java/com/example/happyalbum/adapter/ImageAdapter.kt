@@ -6,8 +6,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.happyalbum.R
 import com.example.happyalbum.databinding.ItemBinding
+import com.example.happyalbum.entity.ImageEntity
 import com.example.happyalbum.utils.ImageUtils
 import com.example.happyalbum.viewmodel.ImageViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * @Author:cxp
@@ -17,16 +22,18 @@ import com.example.happyalbum.viewmodel.ImageViewModel
 class ImageAdapter(
     imageUtils: ImageUtils,
     var imageViewModel: ImageViewModel,
-    var showNoticeDialog: () -> Unit
+    var imageList: ArrayList<ImageEntity>,
+    var showNoticeDialog: () -> Unit,
+
 ) : RecyclerView.Adapter<ImageAdapter.ImageHolder>() {
 
-    private var imageList = imageUtils.getImages()
+//    private var imageList = imageUtils.getImages()
+
 
     inner class ImageHolder(var dataBinding: ItemBinding) :
         RecyclerView.ViewHolder(dataBinding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageHolder {
-
         var dataBinding: ItemBinding = DataBindingUtil.inflate(
             LayoutInflater.from(parent.context),
             R.layout.item,

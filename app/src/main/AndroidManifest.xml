@@ -18,9 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HappyAlbum"
         tools:targetApi="31">
-        <service
-            android:name=".MyIntentService"
-            android:exported="false"></service>
+<!--        <service-->
+<!--            android:name=".MyIntentService"-->
+<!--            android:exported="false"></service>-->
 
         <activity
             android:name=".EditImageActivity"
@@ -31,10 +31,8 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

@@ -29,20 +29,24 @@ class ImageUtils(var contentResolver: ContentResolver, var context: Context) {
     //    获取游标，时间降序
     private var cursor: Cursor?? = null
 
+    // TODO: 修改到子线程
     init {
+
+    }
+
+    //存放图片列表
+    suspend fun getImages(): ArrayList<ImageEntity> {
+        var imageList = ArrayList<ImageEntity>()
+
         cursor = contentResolver.query(
 //       要先获取权限，不然MediaStore.Images.Media.EXTERNAL_CONTENT_URI是null
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                null,
-                MediaStore.Images.Media.MIME_TYPE + "=? or "
-                        + MediaStore.Images.Media.MIME_TYPE + "=?",
-                arrayOf("image/jpeg", "image/png"),
-                MediaStore.Images.Media.DATE_MODIFIED + " DESC"
-            )
-    }
-    //存放图片列表
-    fun getImages(): ArrayList<ImageEntity> {
-        var imageList = ArrayList<ImageEntity>()
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            null,
+            MediaStore.Images.Media.MIME_TYPE + "=? or "
+                    + MediaStore.Images.Media.MIME_TYPE + "=?",
+            arrayOf("image/jpeg", "image/png"),
+            MediaStore.Images.Media.DATE_MODIFIED + " DESC"
+        )
 
         while (cursor!!.moveToNext()) {
             //获取图片的名称
@@ -69,6 +73,7 @@ class ImageUtils(var contentResolver: ContentResolver, var context: Context) {
         Log.d(TAG, "initImage: " + "imageList.size: " + imageList.size)
         return imageList
     }
+
     //根据路径获取图片(弃用原因：通过imageView的src属性传入location图片路径)
 //    弃用原因2.0：通过ImageEntity的文件路径location就可以创建位图， 自定义view
     @Deprecated(message = "通过ImageEntity的文件路径location就可以创建位图， 自定义view")
@@ -83,6 +88,7 @@ class ImageUtils(var contentResolver: ContentResolver, var context: Context) {
         }
         return bm
     }
+
     //保存图片
     fun save(bitmap: Bitmap) {
         //创建ContentValues对象，准备插入数据

@@ -21,6 +21,8 @@ import com.example.happyalbum.entity.ImageEntity
  * @Description:编辑图片页
  */
 
+//RecyclerView
+//LayoutManager=>LinearLayoutManager、GridLayoutManager、StaggeredLayoutManager
 const val TAG = "EditImageActivity"
 
 class EditImageActivity : AppCompatActivity() {

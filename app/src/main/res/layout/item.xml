@@ -9,30 +9,31 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="409dp"
-            android:layout_height="670dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:src="@{img.location}"
-            app:layout_constraintBottom_toTopOf="@+id/imageName"
+            android:contentDescription="@{img.name}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            android:scaleType="fitXY"
+            android:padding="10dp"
+            android:background="@drawable/shape"
             tools:srcCompat="@tools:sample/avatars" />
-        <TextView
-            android:id="@+id/imageName"
-            android:layout_width="409dp"
-            android:layout_height="50dp"
-            android:text="@{img.name}"
-            android:textColor="@color/purple_500"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
+<!--        <TextView-->
+<!--            android:id="@+id/imageName"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="xxxxxxxxx"-->
+<!--            android:textColor="@android:color/holo_orange_dark"-->
+<!--            android:textSize="10sp"-->
+<!--           />-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

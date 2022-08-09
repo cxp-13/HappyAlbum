@@ -11,15 +11,23 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.happyalbum.adapter.ImageAdapter
 import com.example.happyalbum.databinding.ActivityMainBinding
+import com.example.happyalbum.entity.ImageEntity
 import com.example.happyalbum.fragment.NoticeDialogFragment
 import com.example.happyalbum.service.MyIntentService
 import com.example.happyalbum.utils.ImageUtils
 import com.example.happyalbum.viewmodel.ImageViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * @Author:cxp
@@ -28,8 +36,8 @@ import com.example.happyalbum.viewmodel.ImageViewModel
  */
 
 const val TAG2 = "MainActivity"
-
-class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListener {
+//继承fragmentActivity主题会失效
+class MainActivity : NoticeDialogFragment.NoticeDialogListener, AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val imageViewModel: ImageViewModel by viewModels()
@@ -51,16 +59,41 @@ class MainActivity : FragmentActivity(), NoticeDialogFragment.NoticeDialogListen
         Log.i(TAG2, "onCreate: ")
         binding = ActivityMainBinding.inflate(this.layoutInflater)
         setContentView(binding.root)
+
 //检查权限
         permissionChecking()
 //初始化图片工具类
         val imageUtils = ImageUtils(contentResolver, applicationContext)
-//初始化图片适配器
-        val imageAdapter = ImageAdapter(imageUtils, imageViewModel) { showNoticeDialog() }
+        var imageList: ArrayList<ImageEntity> = ArrayList<ImageEntity>()
+//        获取图片列表
+        lifecycleScope.launch {
+            imageList = withContext(Dispatchers.IO) {
+                var temp = imageUtils.getImages()
+                Log.i(TAG2, "onCreate  tempList: $temp")
+                temp
+            }
+            //初始化图片适配器
+            val imageAdapter =
+                ImageAdapter(imageUtils, imageViewModel, imageList) { showNoticeDialog() }
 //给三个recyclerView的适配器赋值
-        binding.recyclerView1.adapter = imageAdapter
-        binding.recyclerView2.adapter = imageAdapter
-        binding.recyclerView3.adapter = imageAdapter
+            binding.recyclerView1.adapter = imageAdapter
+
+//            binding.recyclerView2.adapter = imageAdapter
+//            binding.recyclerView3.adapter = imageAdapter
+        }
+//自定义弹性布局管理器
+        var gridLayoutManager: GridLayoutManager = GridLayoutManager(applicationContext, 3)
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+//                一个item占几列
+//                if (position == 0 || imageList.size - 1 == position) {
+//                    return 4 //该item填充占位4列
+//                }
+                return 1 //该item填充占位1列
+            }
+        }
+
+        binding.recyclerView1.layoutManager = gridLayoutManager
     }
 
     //检查权限
@@ -146,7 +179,6 @@ bug：直接无视弹出框跳转到编辑页
             bundle.putSerializable("imageEntity", it)
         }
         intent.putExtra("bd", bundle)
-
         startActivity(intent)
 
 //        intent = Intent(this, MyIntentService::class.java)
@@ -160,6 +192,5 @@ bug：直接无视弹出框跳转到编辑页
 
     //当点击取消
     override fun onDialogNegativeClick() {
-
     }
 }
