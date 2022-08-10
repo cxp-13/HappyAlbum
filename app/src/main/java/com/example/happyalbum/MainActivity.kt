@@ -1,31 +1,24 @@
 package com.example.happyalbum
 
 import android.Manifest
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.happyalbum.adapter.ImageAdapter
 import com.example.happyalbum.databinding.ActivityMainBinding
 import com.example.happyalbum.entity.ImageEntity
 import com.example.happyalbum.fragment.NoticeDialogFragment
-import com.example.happyalbum.service.MyIntentService
 import com.example.happyalbum.utils.ImageUtils
 import com.example.happyalbum.viewmodel.ImageViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -74,7 +67,7 @@ class MainActivity : NoticeDialogFragment.NoticeDialogListener, AppCompatActivit
             }
             //初始化图片适配器
             val imageAdapter =
-                ImageAdapter(imageUtils, imageViewModel, imageList) { showNoticeDialog() }
+                ImageAdapter(applicationContext,imageUtils, imageViewModel, imageList) { showNoticeDialog() }
 //给三个recyclerView的适配器赋值
             binding.recyclerView1.adapter = imageAdapter
 
