@@ -1,6 +1,7 @@
 package com.example.happyalbum
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,11 +10,14 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.view.WindowMetrics
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.happyalbum.customize_view.HandWrite
 import com.example.happyalbum.databinding.ActivityEditImageBinding
 import com.example.happyalbum.entity.ImageEntity
+import kotlinx.coroutines.*
 
 /**
  * @Author:cxp
@@ -29,7 +33,7 @@ class EditImageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityEditImageBinding
     private lateinit var handWrite: HandWrite
     private lateinit var handle: Handler
-    var imageEntity:ImageEntity ?= null
+    var imageEntity: ImageEntity? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +52,17 @@ class EditImageActivity : AppCompatActivity() {
             BitmapFactory.decodeFile(imageEntity?.location).copy(Bitmap.Config.ARGB_8888, true)
         //当一个view对象创建时，android并不知道其大小，所以getWidth()和getHeight()返回的结果是0
         // 建立原始图像的位图 width:1440 height:2112 先debug获取View的长宽
-        handWrite.new_1Bit = Bitmap.createScaledBitmap(handWrite.origBit!!, 1440, 2112, false)
+
+        val width = windowManager.defaultDisplay.width
+
+        val height = windowManager.defaultDisplay.height
+
+        handWrite.new_1Bit =
+            Bitmap.createScaledBitmap(handWrite.origBit!!, width, height, false)
+
+
+//        handWrite.new_1Bit = Bitmap.createBitmap(handWrite.origBit!!)
+
 
 //定义handle处理图片的名称
         /*对象表达式常用来作为匿名内部类的实现，与对象声明不同，匿名对象不是单例的，每次对象表达式被执行都会创建一个新的对象实例*/
