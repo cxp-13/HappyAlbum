@@ -22,6 +22,8 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     var paint: Paint? = null //定义画笔
     var origBit: Bitmap? = null //存放原始图像
     var new_1Bit: Bitmap? = null //存放从原始图像复制的位图图像
+    var wid: Int = 0
+    var hei: Int = 0
 
     //    var new_2Bit: Bitmap? = null //存放处理后的图像
     var startX = 0f
@@ -38,7 +40,7 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     // 清除涂鸦
     fun clear() {
 //        isClear = true
-        new_1Bit = Bitmap.createScaledBitmap(origBit!!, 1440, 2112, false)
+        new_1Bit = Bitmap.createScaledBitmap(origBit!!, wid, hei, false)
         invalidate()
     }
 

@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.happyalbum.R
 import com.example.happyalbum.databinding.ItemBinding
 import com.example.happyalbum.entity.ImageEntity
@@ -20,7 +22,7 @@ import kotlinx.coroutines.withContext
  * @Author:cxp
  * @Date: 2022/8/3 16:05
  * @Description:首页图片RecyclerView适配器
-*/
+ */
 class ImageAdapter(
     var applicationContext: Context,
     imageUtils: ImageUtils,
@@ -51,6 +53,8 @@ class ImageAdapter(
 //        holder.dataBinding.img = image
         Glide.with(applicationContext)
             .load(image.location)
+//                加圆角半径
+            .transform(RoundedCorners(20))
             .into(holder.dataBinding.imageView)
 //        holder.dataBinding.imageView.setImageBitmap(imageList[position].bitmap)
 //        val imageView = holder.dataBinding.imageView

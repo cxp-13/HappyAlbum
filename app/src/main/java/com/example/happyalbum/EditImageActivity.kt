@@ -1,6 +1,7 @@
 package com.example.happyalbum
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -45,17 +46,22 @@ class EditImageActivity : AppCompatActivity() {
         val bundle: Bundle? = intent.getBundleExtra("bd")
         imageEntity = bundle?.getSerializable("imageEntity") as ImageEntity?
 
+        val width: Int = windowManager.defaultDisplay.width
+        val height = windowManager.defaultDisplay.height
+
 //初始化绘画类
         handWrite = binding.hw
+//给画笔类里面传长、宽
+        handWrite.wid = width
+        handWrite.hei = height
         // 从资源中获取原始图像
         handWrite.origBit =
             BitmapFactory.decodeFile(imageEntity?.location).copy(Bitmap.Config.ARGB_8888, true)
         //当一个view对象创建时，android并不知道其大小，所以getWidth()和getHeight()返回的结果是0
         // 建立原始图像的位图 width:1440 height:2112 先debug获取View的长宽
 
-        val width = windowManager.defaultDisplay.width
 
-        val height = windowManager.defaultDisplay.height
+
 
         handWrite.new_1Bit =
             Bitmap.createScaledBitmap(handWrite.origBit!!, width, height, false)

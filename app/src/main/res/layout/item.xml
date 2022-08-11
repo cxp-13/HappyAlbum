@@ -13,17 +13,19 @@
         android:layout_height="wrap_content">
 
         <ImageView
+
             android:id="@+id/imageView"
+
             android:layout_width="100dp"
             android:layout_height="100dp"
-
             android:contentDescription="@{img.name}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:scaleType="fitXY"
-            android:padding="10dp"
+            android:padding="3dp"
+
             android:background="@drawable/shape"
             tools:srcCompat="@tools:sample/avatars" />
 
