@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.happyalbum.adapter.ImageAdapter
 import com.example.happyalbum.databinding.ActivityMainBinding
 import com.example.happyalbum.entity.ImageEntity
@@ -29,6 +30,7 @@ import kotlinx.coroutines.withContext
  */
 
 const val TAG2 = "MainActivity"
+
 //继承fragmentActivity主题会失效
 class MainActivity : NoticeDialogFragment.NoticeDialogListener, AppCompatActivity() {
 
@@ -67,24 +69,31 @@ class MainActivity : NoticeDialogFragment.NoticeDialogListener, AppCompatActivit
             }
             //初始化图片适配器
             val imageAdapter =
-                ImageAdapter(applicationContext,imageUtils, imageViewModel, imageList) { showNoticeDialog() }
-//给三个recyclerView的适配器赋值
+                ImageAdapter(
+                    applicationContext,
+                    imageUtils,
+                    imageViewModel,
+                    imageList
+                ) { showNoticeDialog() }
+//recyclerView的适配器赋值
             binding.recyclerView1.adapter = imageAdapter
+
 
 //            binding.recyclerView2.adapter = imageAdapter
 //            binding.recyclerView3.adapter = imageAdapter
         }
 //自定义弹性布局管理器
         var gridLayoutManager: GridLayoutManager = GridLayoutManager(applicationContext, 3)
-        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-//                一个item占几列
-//                if (position == 0 || imageList.size - 1 == position) {
-//                    return 4 //该item填充占位4列
-//                }
-                return 1 //该item填充占位1列
-            }
-        }
+        gridLayoutManager.orientation = RecyclerView.VERTICAL
+//        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+//            override fun getSpanSize(position: Int): Int {
+////                一个item占几列
+////                if (position == 0 || imageList.size - 1 == position) {
+////                    return 4 //该item填充占位4列
+////                }
+//                return 1 //该item填充占位1列
+//            }
+//        }
 
         binding.recyclerView1.layoutManager = gridLayoutManager
     }
