@@ -54,7 +54,7 @@ class ImageAdapter(
         Glide.with(applicationContext)
             .load(image.location)
 //                加圆角半径
-            .transform(RoundedCorners(20))
+            .transform(CenterCrop(), RoundedCorners(20))
             .into(holder.dataBinding.imageView)
 //        holder.dataBinding.imageView.setImageBitmap(imageList[position].bitmap)
 //        val imageView = holder.dataBinding.imageView

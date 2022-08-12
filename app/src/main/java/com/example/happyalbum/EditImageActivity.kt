@@ -60,9 +60,6 @@ class EditImageActivity : AppCompatActivity() {
         //当一个view对象创建时，android并不知道其大小，所以getWidth()和getHeight()返回的结果是0
         // 建立原始图像的位图 width:1440 height:2112 先debug获取View的长宽
 
-
-
-
         handWrite.new_1Bit =
             Bitmap.createScaledBitmap(handWrite.origBit!!, width, height, false)
 
