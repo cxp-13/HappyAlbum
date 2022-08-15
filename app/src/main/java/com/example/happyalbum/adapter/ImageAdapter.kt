@@ -3,6 +3,7 @@ package com.example.happyalbum.adapter
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -51,11 +52,15 @@ class ImageAdapter(
     override fun onBindViewHolder(holder: ImageHolder, position: Int) {
         val image = imageList[position]
 //        holder.dataBinding.img = image
+
+
+
         Glide.with(applicationContext)
             .load(image.location)
 //                加圆角半径
             .transform(CenterCrop(), RoundedCorners(20))
             .into(holder.dataBinding.imageView)
+
 //        holder.dataBinding.imageView.setImageBitmap(imageList[position].bitmap)
 //        val imageView = holder.dataBinding.imageView
 //给每个展示的图片绑定点击事件

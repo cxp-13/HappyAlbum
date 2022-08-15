@@ -1,20 +1,23 @@
 package com.example.happyalbum.customize_view
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.MotionEventCompat
 import com.example.happyalbum.utils.ImageUtils
+import kotlin.math.abs
 
 /**
  * @Author:cxp
  * @Date: 2022/8/3 16:07
  * @Description:绘画类
  */
+var TAG = "HandWrite"
 
 class HandWrite(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
@@ -31,11 +34,57 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     var clickX = 0f
     var clickY = 0f //画线的终点坐标
     var isMove = true //设置是否画线的标记
+    private var mScaleFactor = 1f
+
+    //    private var mScaleFactorTemp = 1f
+    var mMatrix: Matrix? = Matrix()
 
     //    var isClear = false //设置是否清除涂鸦的标记
     var color = Color.BLUE //设置画笔的颜色
     var strokeWidth = 5.0f //设置画笔的宽度
-    var imageUtils: ImageUtils = ImageUtils(this.context.contentResolver, context!!)
+    var imageUtils: ImageUtils = ImageUtils(this.context!!.contentResolver, context!!)
+    var mGesture: ScaleGestureDetector;//用与处理双手的缩放手势
+
+
+    init {
+        mGesture =
+            ScaleGestureDetector(context, object : ScaleGestureDetector.OnScaleGestureListener {
+                override fun onScale(detector: ScaleGestureDetector?): Boolean {
+//                    mScaleFactor = mScaleFactor * detector!!.scaleFactor
+//                    继承上一次滑动的状态，不然又会图片会重新变成初始的状态  一开始scaleFactor是1
+                    mScaleFactor *= detector?.scaleFactor!!
+                    val currentSpan = detector?.currentSpan
+                    val previousSpan = detector?.previousSpan
+                    Log.d(
+                        TAG,
+                        "onScale: scaleFactor:$mScaleFactor  currentSpan:$currentSpan  previousSpan:$previousSpan"
+                    )
+//                    mMatrix?.setScale(scaleFactor!!, scaleFactor)
+                    mScaleFactor = 0.5f.coerceAtLeast(mScaleFactor.coerceAtMost(5.0f))
+                    Log.e(TAG, "onScale: $mScaleFactor")
+                    // 以屏幕中央位置进行缩放
+                    mMatrix?.setScale(
+                        mScaleFactor!!,
+                        mScaleFactor,
+                        detector.focusX,
+                        detector.focusY
+                    )
+                    // Don't let the object get too small or too large.
+//                    mScaleFactor = 0.1f.coerceAtLeast(mScaleFactor.coerceAtMost(5.0f))
+                    invalidate()
+                    return false
+                }
+
+                override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+                    Log.d(TAG, "onScaleBegin: ")
+                    return true
+                }
+
+                override fun onScaleEnd(detector: ScaleGestureDetector?) {
+                    Log.d(TAG, "onScaleEnd: ")
+                }
+            })
+    }
 
     // 清除涂鸦
     fun clear() {
@@ -46,15 +95,14 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawBitmap(writing()!!, 0f, 0f, null)
+
+        canvas?.apply {
+
+            drawBitmap(writing()!!, mMatrix!!, null)
+        }
     }
 
     private fun writing(): Bitmap? {  //记录绘制图形
-//        var canvas: Canvas? = if (isClear) {  // 创建绘制新图形的画布
-//            Canvas(new_2Bit!!)
-//        } else {
-//            Canvas(newBit!!) //创建绘制原图形的画布
-//        }
 // 定义画布
         var canvas: Canvas? = Canvas(new_1Bit!!)
         paint = Paint()
@@ -67,32 +115,43 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
         }
         startX = clickX
         startY = clickY
-//        return if (isClear) {
-//            new_2Bit // 返回新绘制的图像
-//        } else newBit
-//        // 若清屏，则返回原图像
-
+        // 若清屏，则返回原图像
         return new_1Bit
     }
 
-    /*invalidate()是用来刷新View的，必须是在UI线程中进行工作。比如在修改某个view的显示时，调用invalidate()才能看到重新绘制的界面。invalidate()的调用是把之前的旧的view从主UI线程队列中pop掉。 */
+    /*invalidate()是用来刷新View的，必须是在UI线程中进行工作。比如在修改某个view的显示时，
+    调用invalidate()才能看到重新绘制的界面。
+    invalidate()的调用是把之前的旧的view从主UI线程队列中pop掉。 */
     // 定义触摸屏事件
     override fun onTouchEvent(event: MotionEvent): Boolean {
         clickX = event.x // 获取触摸坐标位置
         clickY = event.y
-        if (event.action == MotionEvent.ACTION_DOWN) {  // 按下屏幕时无绘图
-            isMove = false
-            invalidate()
-        } else if (event.action == MotionEvent.ACTION_MOVE) {  // 记录在屏幕上划动的轨迹
-            isMove = true
-            invalidate()
+        mGesture.onTouchEvent(event)
+        var action = event.action
+        Log.d(TAG, "onTouchEvent: $action")
+
+        when (action) {
+            MotionEvent.ACTION_DOWN -> { // 按下屏幕时无绘图
+                isMove = false
+//                invalidate()
+            }
+            MotionEvent.ACTION_MOVE -> {  // 记录在屏幕上划动的轨迹
+                isMove = true
+//                var dx = clickX - startX
+//                var dy = clickY - startY
+//                Log.d(TAG, "onTouchEvent: startX-->$startX startY-->$startY")
+//                Log.d(TAG, "onTouchEvent: clickX-->$clickX clickY-->$clickY")
+//                Log.d(TAG, "onTouchEvent: dx-->$dx dy-->$dy")
+//                mMatrix?.postTranslate(dx, dy)
+                invalidate()
+            }
         }
         return true
     }
 
     //启动绘画
     fun start() {
-        isPaint = true
+        isPaint = !isPaint
     }
 
     //保存图片

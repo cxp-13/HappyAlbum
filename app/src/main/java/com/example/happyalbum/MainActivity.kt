@@ -82,7 +82,7 @@ class MainActivity : NoticeDialogFragment.NoticeDialogListener, AppCompatActivit
 //            binding.recyclerView2.adapter = imageAdapter
 //            binding.recyclerView3.adapter = imageAdapter
         }
-//自定义弹性布局管理器
+//自定义网格布局管理器
         var gridLayoutManager: GridLayoutManager = GridLayoutManager(applicationContext, 3)
         gridLayoutManager.orientation = RecyclerView.VERTICAL
 //        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {

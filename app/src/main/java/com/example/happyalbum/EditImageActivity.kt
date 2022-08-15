@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.view.ViewGroup
 import android.view.WindowMetrics
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
@@ -46,11 +47,17 @@ class EditImageActivity : AppCompatActivity() {
         val bundle: Bundle? = intent.getBundleExtra("bd")
         imageEntity = bundle?.getSerializable("imageEntity") as ImageEntity?
 
-        val width: Int = windowManager.defaultDisplay.width
-        val height = windowManager.defaultDisplay.height
+        val width: Int = windowManager.currentWindowMetrics.bounds.width()
+        val height = windowManager.currentWindowMetrics.bounds.height()
 
 //初始化绘画类
+        val x = binding.editLayout
+
         handWrite = binding.hw
+
+//        handWrite.initViewDrag()
+
+
 //给画笔类里面传长、宽
         handWrite.wid = width
         handWrite.hei = height
