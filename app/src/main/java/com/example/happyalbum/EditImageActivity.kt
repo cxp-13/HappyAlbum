@@ -46,34 +46,23 @@ class EditImageActivity : AppCompatActivity() {
         val intent = intent
         val bundle: Bundle? = intent.getBundleExtra("bd")
         imageEntity = bundle?.getSerializable("imageEntity") as ImageEntity?
-
         val width: Int = windowManager.currentWindowMetrics.bounds.width()
         val height = windowManager.currentWindowMetrics.bounds.height()
-
 //初始化绘画类
         val x = binding.editLayout
-
         handWrite = binding.hw
-
 //        handWrite.initViewDrag()
-
-
 //给画笔类里面传长、宽
-        handWrite.wid = width
-        handWrite.hei = height
+//        handWrite.wid = width
+//        handWrite.hei = height
         // 从资源中获取原始图像
         handWrite.origBit =
             BitmapFactory.decodeFile(imageEntity?.location).copy(Bitmap.Config.ARGB_8888, true)
         //当一个view对象创建时，android并不知道其大小，所以getWidth()和getHeight()返回的结果是0
         // 建立原始图像的位图 width:1440 height:2112 先debug获取View的长宽
-
-        handWrite.new_1Bit =
-            Bitmap.createScaledBitmap(handWrite.origBit!!, width, height, false)
-
-
+//        handWrite.new_1Bit =
+//            Bitmap.createScaledBitmap(handWrite.origBit!!, width, height, false)
 //        handWrite.new_1Bit = Bitmap.createBitmap(handWrite.origBit!!)
-
-
 //定义handle处理图片的名称
         /*对象表达式常用来作为匿名内部类的实现，与对象声明不同，匿名对象不是单例的，每次对象表达式被执行都会创建一个新的对象实例*/
         handle = object : Handler(Looper.getMainLooper()) {
@@ -82,7 +71,6 @@ class EditImageActivity : AppCompatActivity() {
                 binding.showLocation.text = msg.obj.toString()
             }
         }
-
         handle.postDelayed({
 //            将intent中的图像的名称传给handle
             var message: Message = handle.obtainMessage()

@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.MotionEventCompat
 import com.example.happyalbum.utils.ImageUtils
 import kotlin.math.abs
@@ -22,6 +23,7 @@ var TAG = "HandWrite"
 class HandWrite(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
     var isPaint = false
+    var isScale = false
     var paint: Paint? = null //定义画笔
     var origBit: Bitmap? = null //存放原始图像
     var new_1Bit: Bitmap? = null //存放从原始图像复制的位图图像
@@ -47,6 +49,7 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
 
 
     init {
+//        初始化图片拉伸类
         mGesture =
             ScaleGestureDetector(context, object : ScaleGestureDetector.OnScaleGestureListener {
                 override fun onScale(detector: ScaleGestureDetector?): Boolean {
@@ -63,7 +66,7 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
                     mScaleFactor = 0.5f.coerceAtLeast(mScaleFactor.coerceAtMost(5.0f))
                     Log.e(TAG, "onScale: $mScaleFactor")
                     // 以屏幕中央位置进行缩放
-                    mMatrix?.setScale(
+                    mMatrix?.postScale(
                         mScaleFactor!!,
                         mScaleFactor,
                         detector.focusX,
@@ -77,13 +80,24 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
 
                 override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
                     Log.d(TAG, "onScaleBegin: ")
+                    isScale = true
                     return true
                 }
 
                 override fun onScaleEnd(detector: ScaleGestureDetector?) {
                     Log.d(TAG, "onScaleEnd: ")
+                    isScale = false
                 }
             })
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        wid = measuredWidth
+        hei = measuredHeight
+        Log.d(TAG, "onMeasure: wid-->$wid, hei-->$hei")
+        new_1Bit =
+            Bitmap.createScaledBitmap(origBit!!, wid, hei, false)
     }
 
     // 清除涂鸦
@@ -97,8 +111,11 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
         super.onDraw(canvas)
 
         canvas?.apply {
-
-            drawBitmap(writing()!!, mMatrix!!, null)
+            if (isPaint) {
+                drawBitmap(writing()!!, 0f, 0f, null)
+            } else {
+                drawBitmap(writing()!!, mMatrix!!, null)
+            }
         }
     }
 
@@ -110,6 +127,7 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
         paint!!.isAntiAlias = true
         paint!!.color = color
         paint!!.strokeWidth = strokeWidth
+        Log.d(TAG, "writing isScale-->: $isScale")
         if (isMove && isPaint) {
             canvas?.drawLine(startX, startY, clickX, clickY, paint!!) // 在画布上画线条
         }
@@ -126,23 +144,30 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     override fun onTouchEvent(event: MotionEvent): Boolean {
         clickX = event.x // 获取触摸坐标位置
         clickY = event.y
-        mGesture.onTouchEvent(event)
+        if (!isPaint) {
+            mGesture.onTouchEvent(event)
+        }
         var action = event.action
         Log.d(TAG, "onTouchEvent: $action")
 
         when (action) {
             MotionEvent.ACTION_DOWN -> { // 按下屏幕时无绘图
                 isMove = false
-//                invalidate()
+                invalidate()
+                Log.d(TAG, "onTouchEvent-->ACTION_DOWN: startX-->$startX startY-->$startY")
+                Log.d(TAG, "onTouchEvent-->ACTION_DOWN: clickX-->$clickX clickY-->$clickY")
             }
             MotionEvent.ACTION_MOVE -> {  // 记录在屏幕上划动的轨迹
                 isMove = true
-//                var dx = clickX - startX
-//                var dy = clickY - startY
-//                Log.d(TAG, "onTouchEvent: startX-->$startX startY-->$startY")
-//                Log.d(TAG, "onTouchEvent: clickX-->$clickX clickY-->$clickY")
-//                Log.d(TAG, "onTouchEvent: dx-->$dx dy-->$dy")
-//                mMatrix?.postTranslate(dx, dy)
+                var dx = clickX - startX
+                var dy = clickY - startY
+                Log.d(TAG, "onTouchEvent-->ACTION_MOVE: startX-->$startX startY-->$startY")
+                Log.d(TAG, "onTouchEvent-->ACTION_MOVE: clickX-->$clickX clickY-->$clickY")
+                Log.d(TAG, "onTouchEvent-->ACTION_MOVE: dx-->$dx dy-->$dy")
+                if (!isPaint) {
+//                    scrollBy(-dx.toInt(), -dy.toInt())
+                    mMatrix?.postTranslate(dx, dy)
+                }
                 invalidate()
             }
         }
@@ -152,6 +177,15 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     //启动绘画
     fun start() {
         isPaint = !isPaint
+        Toast.makeText(
+            context,
+            "${if (isPaint) "start paint" else "close paint"}",
+            Toast.LENGTH_SHORT
+        ).show()
+        Log.d(TAG, "start: width:${wid} hei:${hei}")
+        new_1Bit =
+            Bitmap.createScaledBitmap(origBit!!, wid, hei, false)
+        invalidate()
     }
 
     //保存图片
