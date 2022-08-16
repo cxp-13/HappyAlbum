@@ -24,6 +24,9 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
     var isPaint = false
     var isScale = false
+    var isRound = false
+
+
     var paint: Paint? = null //定义画笔
     var origBit: Bitmap? = null //存放原始图像
     var new_1Bit: Bitmap? = null //存放从原始图像复制的位图图像
@@ -66,7 +69,7 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
                     mScaleFactor = 0.5f.coerceAtLeast(mScaleFactor.coerceAtMost(5.0f))
                     Log.e(TAG, "onScale: $mScaleFactor")
                     // 以屏幕中央位置进行缩放
-                    mMatrix?.postScale(
+                    mMatrix?.setScale(
                         mScaleFactor!!,
                         mScaleFactor,
                         detector.focusX,
@@ -91,6 +94,7 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
             })
     }
 
+    // wid-->1080, hei-->2148
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         wid = measuredWidth
@@ -114,7 +118,20 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
             if (isPaint) {
                 drawBitmap(writing()!!, 0f, 0f, null)
             } else {
-                drawBitmap(writing()!!, mMatrix!!, null)
+//                单指拖动、 双指缩放
+                startX = clickX
+                startY = clickY
+                if (isRound) {
+                    val mPath = Path()
+                    mPath.addCircle(
+                        clickX,
+                        clickY,
+                        100F,
+                        Path.Direction.CCW
+                    )
+                    canvas.clipPath(mPath)
+                }
+                drawBitmap(new_1Bit!!, mMatrix!!, null)
             }
         }
     }
@@ -142,22 +159,28 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     invalidate()的调用是把之前的旧的view从主UI线程队列中pop掉。 */
     // 定义触摸屏事件
     override fun onTouchEvent(event: MotionEvent): Boolean {
+
         clickX = event.x // 获取触摸坐标位置
         clickY = event.y
+//        小球的边界
+        if (!(clickX > 100 && clickX < wid - 100 && clickY > 100 && clickY < hei - 100)) {
+            return false
+        }
+
         if (!isPaint) {
             mGesture.onTouchEvent(event)
         }
         var action = event.action
         Log.d(TAG, "onTouchEvent: $action")
-
         when (action) {
-            MotionEvent.ACTION_DOWN -> { // 按下屏幕时无绘图
+            MotionEvent.ACTION_DOWN -> {
+                // 按下屏幕时无绘图
                 isMove = false
                 invalidate()
                 Log.d(TAG, "onTouchEvent-->ACTION_DOWN: startX-->$startX startY-->$startY")
                 Log.d(TAG, "onTouchEvent-->ACTION_DOWN: clickX-->$clickX clickY-->$clickY")
             }
-            MotionEvent.ACTION_MOVE -> {  // 记录在屏幕上划动的轨迹
+            MotionEvent.ACTION_MOVE -> { // 记录在屏幕上划动的轨迹
                 isMove = true
                 var dx = clickX - startX
                 var dy = clickY - startY
@@ -166,9 +189,15 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
                 Log.d(TAG, "onTouchEvent-->ACTION_MOVE: dx-->$dx dy-->$dy")
                 if (!isPaint) {
 //                    scrollBy(-dx.toInt(), -dy.toInt())
+//                    单指拖动
                     mMatrix?.postTranslate(dx, dy)
                 }
                 invalidate()
+//                if (isRound) {
+//                    if (clickX > 60 && clickX < wid - 60 && clickY > 60 && clickY < hei - 60) {
+//                        scrollBy(-dx.toInt(), -dy.toInt())
+//                    }
+//                }
             }
         }
         return true
@@ -190,10 +219,11 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
 
     //保存图片
     fun save() {
-//        if (isClear)
-//            imageUtils.save(new_2Bit!!)
-//        else
-//            imageUtils.save(new_1Bit!!)
         imageUtils.save(new_1Bit!!)
+    }
+
+    fun cropCircle() {
+        isRound = !isRound
+        invalidate()
     }
 }

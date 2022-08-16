@@ -104,6 +104,11 @@ class EditImageActivity : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
+//        裁剪圆角
+        val roundBt = binding.roundBt
+        roundBt.setOnClickListener {
+            handWrite.cropCircle()
+        }
 //        var paint = Paint()
 //        paint.strokeWidth = 10F
 //        paint.color = Color.RED
