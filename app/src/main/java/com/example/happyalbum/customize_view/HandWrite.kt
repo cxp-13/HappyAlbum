@@ -30,14 +30,14 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     var paint: Paint? = null //定义画笔
     var origBit: Bitmap? = null //存放原始图像
     var new_1Bit: Bitmap? = null //存放从原始图像复制的位图图像
-    var wid: Int = 0
-    var hei: Int = 0
+    var wid: Float = 0f
+    var hei: Float = 0f
 
     //    var new_2Bit: Bitmap? = null //存放处理后的图像
     var startX = 0f
     var startY = 0f //画线的起点坐标
-    var clickX = 0f
-    var clickY = 0f //画线的终点坐标
+    var clickX: Float = 0.0f
+    var clickY: Float = 0.0f //画线的终点坐标
     var isMove = true //设置是否画线的标记
     private var mScaleFactor = 1f
 
@@ -97,17 +97,19 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     // wid-->1080, hei-->2148
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        wid = measuredWidth
-        hei = measuredHeight
+        wid = measuredWidth.toFloat()
+        hei = measuredHeight.toFloat()
+        clickX = wid / 2
+        clickY = hei / 2
         Log.d(TAG, "onMeasure: wid-->$wid, hei-->$hei")
         new_1Bit =
-            Bitmap.createScaledBitmap(origBit!!, wid, hei, false)
+            Bitmap.createScaledBitmap(origBit!!, wid.toInt(), hei.toInt(), false)
     }
 
     // 清除涂鸦
     fun clear() {
 //        isClear = true
-        new_1Bit = Bitmap.createScaledBitmap(origBit!!, wid, hei, false)
+        new_1Bit = Bitmap.createScaledBitmap(origBit!!, wid.toInt(), hei.toInt(), false)
         invalidate()
     }
 
@@ -159,14 +161,17 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
     invalidate()的调用是把之前的旧的view从主UI线程队列中pop掉。 */
     // 定义触摸屏事件
     override fun onTouchEvent(event: MotionEvent): Boolean {
-
         clickX = event.x // 获取触摸坐标位置
         clickY = event.y
 //        小球的边界
         if (!(clickX > 100 && clickX < wid - 100 && clickY > 100 && clickY < hei - 100)) {
             return false
         }
-
+//        限制只能点击球的范围
+        Log.d(TAG, "onTouchEvent: isRound-->$isRound,  isMove-->$isMove")
+        if (isRound && !(clickX < startX + 200 && clickX > startX - 200 && clickY < startY + 200 && clickY > startY - 200)) {
+            return false
+        }
         if (!isPaint) {
             mGesture.onTouchEvent(event)
         }
@@ -177,6 +182,7 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
                 // 按下屏幕时无绘图
                 isMove = false
                 invalidate()
+                Toast.makeText(context, "MotionEvent.ACTION_DOWN", Toast.LENGTH_SHORT).show()
                 Log.d(TAG, "onTouchEvent-->ACTION_DOWN: startX-->$startX startY-->$startY")
                 Log.d(TAG, "onTouchEvent-->ACTION_DOWN: clickX-->$clickX clickY-->$clickY")
             }
@@ -213,7 +219,7 @@ class HandWrite(context: Context?, attrs: AttributeSet?) :
         ).show()
         Log.d(TAG, "start: width:${wid} hei:${hei}")
         new_1Bit =
-            Bitmap.createScaledBitmap(origBit!!, wid, hei, false)
+            Bitmap.createScaledBitmap(origBit!!, wid.toInt(), hei.toInt(), false)
         invalidate()
     }
 
